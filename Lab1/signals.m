@@ -1,11 +1,11 @@
 
 %variables
 step = 0.001;
-t = 0:step:2-step;
+t = 0 : step : 2-step;
 f = 4;
 
 %signal
-y = sin(12*pi*f*t+pi/11) + sin(10*pi*f*t);
+y = my_signal(t, f);
 
 %create and show plot
 figure;
@@ -16,13 +16,13 @@ title('Signal')
 grid on
 
 %sampling
-Fs = 20;
-t = 0:1/Fs:1-(1/Fs);
+Fs = 48 * 4;
+t = 0 : 1/Fs : 1-(1/Fs);
 
 samples = zeros(1, length(t));
 
 for k = 1:length(t)
-    samples(k) = 50 * (sin(12*pi*f*t(k)+pi/11) + sin(10*pi*f*t(k)));
+    samples(k) = 50 * my_signal(t(k), f);
 end
 
 %DFT
@@ -46,17 +46,21 @@ title('Signal')
 
 %Test ADC capacity
 for ADC_capacity = 3:6
+
     max_value = 2^ADC_capacity - 1;
     
     samples = zeros(1, length(t));
     
     for k = 1:length(t)
-        tmp = 50 * (sin(12*pi*f*t(k)+pi/11) + sin(10*pi*f*t(k)));
+
+        tmp = 50 * my_signal(t(k), f);
+
         if tmp > max_value
             samples(k) = max_value;
         else
             samples(k) = tmp;
         end
+
     end
 
     F = fft(samples);
