@@ -2,7 +2,7 @@
 %variables
 step = 0.001;
 t = 0 : step : 2-step;
-f = 4;
+f = 1;
 
 %signal
 y = my_signal(t, f);
@@ -19,14 +19,12 @@ grid on
 Fs = 48 * 4;
 t = 0 : 1/Fs : 1-(1/Fs);
 
-samples = zeros(1, length(t));
-
-for k = 1:length(t)
-    samples(k) = 50 * my_signal(t(k), f);
-end
+samples = my_signal(t, f);
 
 %DFT
 F = fft(samples); 
+
+amps = abs(F);
 
 %create plot with samples
 figure;
@@ -38,8 +36,10 @@ title('Signal')
 grid on
 
 %create spectrum plot with samples
+N = length(F);
+f_axis = (0:N/2-1)*(Fs/N);
 figure;
-plot(abs(F));
+plot(f_axis,amps(1:N/2));
 xlabel('f') 
 ylabel('A')
 title('Signal')
@@ -65,14 +65,23 @@ for ADC_capacity = 3:6
 
     F = fft(samples);
 
+    amps = abs(F);
+
+    N = length(F);
+    f_axis = (0:N/2-1)*(Fs/N);
     figure;
-    plot(abs(F));
-    xlabel('f'); 
-    ylabel('A');
-    label = sprintf("Signal ADC_capacity = %d", ADC_capacity);
-    title(label);
+    plot(f_axis,amps(1:N/2));
+    xlabel('f') 
+    ylabel('A')
+    title('Signal')
+
+
 end
 
+function y = my_signal(t, f)
+    %y = sin(12*pi*f.*t + pi/11) + sin(10*pi*f.*t);
+    y = sin(10 * pi .* t * f);
+end
 
 
 
