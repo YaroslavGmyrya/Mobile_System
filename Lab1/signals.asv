@@ -1,7 +1,7 @@
 
 %variables
 step = 0.001;
-t = 0 : step : 1-step;
+t = 0 : step : 2-step;
 f = 4;
 
 %signal
@@ -16,7 +16,7 @@ title('Signal')
 grid on
 
 %sampling
-Fs = 48 * 4;
+Fs = 48;
 t = 0 : 1/Fs : 1-(1/Fs);
 
 samples = my_signal(t, f);
@@ -30,7 +30,7 @@ amps = abs(F);
 figure;
 plot(t, samples);
 hold on;
-plot(0:step:1-step, y);
+plot(0:step:-step, y);
 xlabel('t');
 ylabel('A');
 title('Signal');
@@ -42,7 +42,7 @@ hold off;
 N = length(F);
 f_axis = (0:N/2-1)*(Fs/N);
 figure;
-stem(f_axis,amps(1:N/2));
+plot(f_axis,amps(1:N/2));
 xlabel('f') 
 ylabel('A')
 title('Signal')
@@ -56,7 +56,7 @@ for ADC_capacity = 3:6
     
     for k = 1:length(t)
 
-        tmp = 20 * my_signal(t(k), f);
+        tmp = 50 * my_signal(t(k), f);
 
         if tmp > max_value
             samples(k) = max_value;
@@ -73,7 +73,7 @@ for ADC_capacity = 3:6
     N = length(F);
     f_axis = (0:N/2-1)*(Fs/N);
     figure;
-    stem(f_axis,amps(1:N/2));
+    plot(f_axis,amps(1:N/2));
     xlabel('f') 
     ylabel('A')
     title('Signal')

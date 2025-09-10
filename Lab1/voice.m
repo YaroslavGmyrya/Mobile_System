@@ -38,3 +38,37 @@ xlabel('f');
 ylabel('A'); 
 title('Signal'); 
 grid on; 
+
+%freq spectrum
+spec = fft(y);
+
+%shift freq spectrum
+y_shift = my_shift(spec, 3000);
+
+%reverse fft
+y_time = ifft(y_shift);
+
+%create audio
+new_audio_2 = audioplayer(y_time,Fs);
+
+%play
+play(new_audio_2); 
+
+function shift = my_shift(vec, n) 
+
+    if n > 0
+        zero_block = zeros(n, 2, class(vec));
+        shift = [zero_block; vec];
+    
+    else
+        zero_block = zeros(abs(n), 2, class(vec));
+    
+        if k < size(vec, 1)
+            shift = [vec(abs(n)+1:end, :); zero_block];
+        else
+            shift = zero_block; 
+        end
+    end
+
+end
+
