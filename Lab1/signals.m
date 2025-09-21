@@ -1,67 +1,96 @@
 
-%variables
+%% variables
 step = 0.001;
 t = 0 : step : 1-step;
 f = 4;
 
-%signal
+%% signal
 y = my_signal(t, f);
 
-%create and show plot
+%% create and show plot
 figure;
 plot(t, y);
-xlabel('t') 
-ylabel('A')
-title('Signal')
+xlabel('t,c') 
+ylabel('A,B')
+title('sin(12*pi*f*t + pi/11) + sin(10*pi*f*t)')
 grid on
 
-%sampling
-Fs = 48 * 4;
+%% sampling
+Fs = 48;
 t = 0 : 1/Fs : 1-(1/Fs);
 
 samples = my_signal(t, f);
 
-%DFT
-F = fft(samples); 
-
-amps = abs(F);
-
-%create plot with samples
+%% create plot with samples
 figure;
 plot(t, samples);
 hold on;
 plot(0:step:1-step, y);
-xlabel('t');
-ylabel('A');
-title('Signal');
-grid on;
-legend("Original","Recovery signal")
 hold off;
+xlabel('t,c');
+ylabel('A,B');
+title('DAC');
+grid on;
+legend("Original","Recovery signal Fs = 48")
 
-%create spectrum plot with samples
-N = length(F);
-f_axis = (0:N/2-1)*(Fs/N);
+Fs = Fs * 4;
+
+t = 0 : 1/Fs : 1-(1/Fs);
+
+samples = my_signal(t, f);
+
 figure;
-stem(f_axis,amps(1:N/2));
-xlabel('f') 
-ylabel('A')
-title('Signal')
+plot(t, samples);
+hold on;
+plot(0:step:1-step, y);
+hold off;
+xlabel('t,c');
+ylabel('A,B');
+title('DAC');
+grid on;
+legend("Original","Recovery signal Fs = 48")
 
-%Test ADC capacity
-for ADC_capacity = 3:6
+%% DFT
+F = fft(samples); 
+amps = abs(F);
+
+%% create spectrum plot with samples
+N = length(F);
+f_axis = (0:floor(N/2))*(Fs/N);
+
+figure;
+plot(f_axis, amps(1:floor(N/2)+1));
+xlabel("f, Hz"); 
+ylabel("A,B");
+title("Amplitude-frequency representation");
+
+%% Test ADC capacity
+ADC_start = 3;
+ADC_end = 6;
+for ADC_capacity = ADC_start:ADC_end
+    
+    %quantum error rate
+    QER = 0;
+
+    sum_signal_value = 0;
 
     max_value = 2^ADC_capacity - 1;
     
     samples = zeros(1, length(t));
     
     for k = 1:length(t)
+  
+        signal_value = 20 * my_signal(t(k), f);
+        sum_signal_value = sum_signal_value + abs(signal_value);
 
-        tmp = 20 * my_signal(t(k), f);
-
-        if tmp > max_value
+        if signal_value > max_value
             samples(k) = max_value;
+            QER = QER + abs(signal_value - max_value);
+
         else
-            samples(k) = tmp;
+            samples(k) = round(signal_value);
+            QER = QER + abs(signal_value - round(signal_value));
+
         end
 
     end
@@ -72,21 +101,24 @@ for ADC_capacity = 3:6
 
     N = length(F);
     f_axis = (0:N/2-1)*(Fs/N);
-    figure;
+    subplot(1, ADC_end - ADC_start + 1, ADC_capacity - ADC_start + 1);
     stem(f_axis,amps(1:N/2));
-    xlabel('f') 
-    ylabel('A')
-    title('Signal')
+    xlabel('f,Hz') 
+    ylabel('A,B')
+    label = sprintf("ADC test, capacity = %d bit, QER = %.3f", ADC_capacity, round(QER/sum_signal_value, 3));
+    title(label)
 
 
 end
 
 
 
-%my_ft vs matlab fft
+%% my_ft vs matlab fft
 
 my_ft_samples = my_ft(samples);
 matlab_fft_samples = fft(samples);
+
+%% The imperial march
 
 frequences = [392, 392, 392, 311, 466, 392, 311, 466, 392,...
   587, 587, 587, 622, 466, 369, 311, 466, 392,...
@@ -115,9 +147,9 @@ end
 audio = audioplayer(my_song,fs);
 
 %play
-play(audio); 
+%play(audio); 
 
-
+%% SUB FUNCTIONS
 
 function y = my_signal(t, f)
     y = sin(12*pi*f.*t + pi/11) + sin(10*pi*f.*t);
