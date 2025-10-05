@@ -51,18 +51,8 @@ grid on;
 legend("Original","Recovery signal Fs = 48")
 
 %% DFT
-F = fft(samples); 
+F = my_fft(samples); 
 amps = abs(F);
-
-%% create spectrum plot with samples
-N = length(F);
-f_axis = (0:floor(N/2))*(Fs/N);
-
-figure;
-plot(f_axis, amps(1:floor(N/2)+1));
-xlabel("f, Hz"); 
-ylabel("A,B");
-title("Amplitude-frequency representation");
 
 %% Test ADC capacity
 ADC_start = 3;
@@ -80,7 +70,7 @@ for ADC_capacity = ADC_start:ADC_end
     
     for k = 1:length(t)
   
-        signal_value = 20 * my_signal(t(k), f);
+        signal_value = 40 * my_signal(t(k), f);
         sum_signal_value = sum_signal_value + abs(signal_value);
 
         if signal_value > max_value
@@ -95,14 +85,14 @@ for ADC_capacity = ADC_start:ADC_end
 
     end
 
-    F = fft(samples);
+    F = my_fft(samples);
 
-    amps = abs(F);
+    amps1 = abs(F);
 
     N = length(F);
     f_axis = (0:N/2-1)*(Fs/N);
     subplot(1, ADC_end - ADC_start + 1, ADC_capacity - ADC_start + 1);
-    stem(f_axis,amps(1:N/2));
+    stem(f_axis,amps1(1:N/2));
     xlabel('f,Hz') 
     ylabel('A,B')
     label = sprintf("ADC test, capacity = %d bit, QER = %.3f", ADC_capacity, round(QER/sum_signal_value, 3));
@@ -113,10 +103,10 @@ end
 
 
 
-%% my_ft vs matlab fft
+%% my_ft vs matlab my_fft
 
-my_ft_samples = my_ft(samples);
-matlab_fft_samples = fft(samples);
+my_ft_samples = my_fft(samples);
+matlab_fft_samples = my_fft(samples);
 
 %% The imperial march
 
@@ -147,7 +137,18 @@ end
 audio = audioplayer(my_song,fs);
 
 %play
-%play(audio); 
+play(audio); 
+
+%% create spectrum plot with samples
+N = length(F);
+f_axis = (0:floor(N/2))*(Fs/N);
+amps = amps(1:floor(N/2)+1);
+
+figure;
+stem(f_axis, amps);
+xlabel("f, Hz"); 
+ylabel("A,B");
+title("Amplitude-frequency representation");
 
 %% SUB FUNCTIONS
 
@@ -156,19 +157,21 @@ function y = my_signal(t, f)
 end
 
 
-function F = my_ft(samples)
+%                    N
+%      X(k) =       sum  x(n)*exp(-j*2*pi*(k-1)*(n-1)/N), 1 <= k <= N.
+%                   n=1
+
+function F = my_fft(samples)
     N = length(samples);
     F = zeros(N, 1);
-
-    for x = 0 : N - 1
+    for k = 1 : N
         sum = 0;
-        for n = 0 : N - 1
-            sum = sum + samples(n+1) * exp(-1j * 2 * pi * x * n/N);
+        for n = 1 : N
+            sum = sum + samples(n) * exp(-1i * 2 * pi * (k-1) * (n-1)/N);
         end
 
-        F(x+1) = sum;
+        F(k) = sum;
     end
-
 end
 
 

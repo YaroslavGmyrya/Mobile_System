@@ -25,6 +25,7 @@ y_fft = fft(y);
 y_down_fft = fft(y_down); 
 
 %% build plots
+figure;
 subplot(2, 1, 1);
 semilogx(abs(y_fft)); 
 xlabel('f,Hz'); 
@@ -39,30 +40,31 @@ ylabel('A,B');
 title('Voice (down samples) amplitude-frequency representation'); 
 grid on; 
 
-%% freq spectrum
-spec = fft(y);
+%%change voice
 
-%% shift freq spectrum
-y_shift = my_shift(spec,8000);
+% get first column from y (mono)
+y = y(:, 1);
 
-%% reverse fft
-y_time = ifft(y_shift);
+%timeline
+t = (0:length(y)-1)' / Fs;
 
-%% create audio
-new_audio_2 = audioplayer(y_time,Fs);
+%shift
+f_shift = 759;
+y_shifted = real(y .* exp(1i * 2 * pi * f_shift * t));
 
-%% play
-play(new_audio_2); 
+% check voice
+new_audio = audioplayer(y_shifted, Fs);
+play(new_audio);
 
 %% function
 function shift = my_shift(vec, n) 
 
     if n > 0
-        zero_block = zeros(n, 2, class(vec));
+        zero_block = zeros(n, 1);
         shift = [zero_block; vec];
     
     else
-        zero_block = zeros(abs(n), 2, class(vec));
+        zero_block = zeros(abs(n), 1);
     
         if abs(n) < size(vec, 1)
             shift = [vec(abs(n)+1:end, :); zero_block];

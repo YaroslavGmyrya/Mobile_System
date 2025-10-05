@@ -35,12 +35,12 @@ thermal_noise_ul = -174 + 10 * log10(UL_BW * 10^6);
 rx_bs_sens = BS_NOISE_COEFF + thermal_noise_ul + UL_SINR;
 MAPL_UL = UE_POWER - FEEDER_LOSS + GAIN_BS + MIMO_GAIN -IM - PENETRATION - rx_bs_sens;
 
-fprintf("UL_PARAMS: Thermal noise: %f \t rx_sens = %f \t MAPL = %f\n", thermal_noise_ul, rx_sens, MAPL_UL);
+fprintf("UL_PARAMS: Thermal noise: %f \t rx_sens = %f \t MAPL = %f\n", thermal_noise_ul, rx_bs_sens, MAPL_UL);
 
 %DL budget
 thermal_noise_dl = -174 + 10 * log10(DL_BW * 10^6);
 rx_ue_sens = UE_NOISE_COEFF + thermal_noise_ul + DL_SINR;
-MAPL_DL = BS_POWER - FEEDER_LOSS + GAIN_BS + MIMO_GAIN -IM - PENETRATION - rx_sens;
+MAPL_DL = BS_POWER - FEEDER_LOSS + GAIN_BS + MIMO_GAIN -IM - PENETRATION - rx_ue_sens;
 
 fprintf("DL_PARAMS: Thermal noise: %f \t rx_sens = %f \t MAPL = %f\n", thermal_noise_dl, rx_ue_sens, MAPL_DL);
 
