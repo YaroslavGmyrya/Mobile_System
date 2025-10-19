@@ -2,7 +2,7 @@
 #include <vector>
 #include <cmath>
 
-double cor(std::vector<int>& a, std::vector<int>& b){
+double corr(std::vector<int>& a, std::vector<int>& b){
 
     if(a.size() != b.size()){
         printf("Vector must be the same size\n");
@@ -18,9 +18,9 @@ double cor(std::vector<int>& a, std::vector<int>& b){
     return result;
 }
 
-double norm_cor(std::vector<int>& a, std::vector<int>& b){
+double norm_corr(std::vector<int>& a, std::vector<int>& b){
 
-    double unnormal_cor = cor(a, b);
+    double unnormal_cor = corr(a, b);
 
     double norm_coeff_a = 0;
     double norm_coeff_b = 0;
@@ -53,7 +53,7 @@ int main(){
             printf("%c \t", letters[i]);
 
             for(int j = 0; j < all_vec.size(); ++j){
-                printf("%.0lf \t", cor(all_vec[i], all_vec[j]));
+                printf("%.0lf \t", corr(all_vec[i], all_vec[j]));
             }
 
             printf("\n");
@@ -71,7 +71,7 @@ int main(){
             printf("%c \t", letters[i]);
 
             for(int j = 0; j < all_vec.size(); ++j){
-                printf("%.2lf \t", norm_cor(all_vec[i], all_vec[j]));
+                printf("%.2lf \t", norm_corr(all_vec[i], all_vec[j]));
             }
 
             printf("\n");
