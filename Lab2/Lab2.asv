@@ -120,7 +120,7 @@ fprintf("S_ULOS = %f \t S_COST = %f\n", S_ULOS, S_COST);
 S1 = 100;
 S2 = 4;
 
-fprintf("countBS_ULOS = %f \t countBS_COST = %f\n", S2/S_ULOS, S1/S_COST);
+fprintf("S_ULOS = %f \t S_COST = %f\n", S2/S_ULOS, S1/S_COST);
 
 
 

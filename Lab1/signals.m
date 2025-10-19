@@ -53,7 +53,6 @@ legend("Original","Recovery signal Fs = 48")
 %% DFT
 F = my_fft(samples); 
 amps = abs(F);
-
 %% Test ADC capacity
 ADC_start = 3;
 ADC_end = 6;
@@ -101,12 +100,26 @@ for ADC_capacity = ADC_start:ADC_end
 
 end
 
-
-
 %% my_ft vs matlab my_fft
-
-my_ft_samples = my_fft(samples);
-matlab_fft_samples = my_fft(samples);
+% t_test = 0 : 0.1 : 1000;
+% test_samples = my_signal(t_test, f);
+% time_sum_my_ft = 0;
+% time_sum_matlab_fft = 0;
+% 
+% for i = 1:5
+%     tic;
+%     my_ft_samples = my_fft(test_samples);
+%     time_sum_my_ft = time_sum_my_ft + toc;
+% end
+% 
+% for i = 1:5
+%     tic;
+%     my_ft_samples = fft(test_samples);
+%     time_sum_matlab_fft = time_sum_matlab_fft + toc;
+% end
+% 
+% fprintf("Matlab avg fft time:%f\n", time_sum_matlab_fft/5);
+% fprintf("My ft avg time:%f\n", time_sum_my_ft/5);
 
 %% The imperial march
 
@@ -128,16 +141,30 @@ my_song = [];
 fs = 44100;
 
  for k = 1:length(frequences)
-        t = 0:1/fs:durations(k)/1000*1.75-1/fs;   
-        tone = 1.5 * sin(2*pi*frequences(k)*t);    
+        t = 0:1/fs:durations(k)/1000-1/fs;   
+        tone = sin(2*pi*frequences(k).*t);    
         my_song = [my_song, tone];                  
-end
+ end
+
+song_spec = fft(my_song);
+amps_spec = abs(song_spec);
+N = length(amps_spec);
+f_axis_song = (0:floor(N/2))*(fs/N);
+amps_spec = 10*log10(amps_spec(1:floor(N/2)+1));
+
+figure;
+plot(10*log10(f_axis_song),amps_spec);
+title("My song amplitude spectrum");
+xlabel("f, Hz");
+ylabel("A, V")
 
 
 audio = audioplayer(my_song,fs);
 
+audiowrite("song.mp3", my_song, 44100);
+
 %play
-play(audio); 
+%play(audio); 
 
 %% create spectrum plot with samples
 N = length(F);
