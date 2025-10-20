@@ -30,7 +30,8 @@ B = 33.9;
 
 rx_sensBS = -125 : 1 : -80;
 
-rad = zeros(length(rx_sensBS), 1);
+rad = zeros(length(DL_BW), 1);
+meters =  zeros(length(DL_BW), 1);
 
 for i = 1:length(rx_sensBS)
 
@@ -83,16 +84,12 @@ pl_WI = pl_WI_func(FREQ_RANGE, d);
     for m = 1: length(pl_COST)
         if(pl_COST(m) >= MAPL_UL)
             fprintf("radius = %d \t MAPL = %f\n", m, MAPL_UL);
-            rad(i) = m;
+            rad
             break;
         end
     end
 
 end
-
-plot(rx_sensBS, rad);
-xlabel("BS SENS")
-ylabel("Cell Radius");
 % 
 % %compute UL budget and UL_MAPL
 % 
