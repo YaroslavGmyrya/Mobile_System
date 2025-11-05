@@ -33,39 +33,73 @@ fprintf("-----------------------------------------------\n");
 
 f1 = [0.3, 0.2, -0.1, 4.2, -2, 1.5, 0];
 f2 = [0.3, 4, -2.2, 1.6, 0.1, 0.1, 0.2];
+f3 = [0,0,0,1,0,0,-0.01];
 
 t = 0 : 1 : 7 - 1;
 
 figure;
-subplot(2, 1, 1);
+subplot(3, 1, 1);
 plot(t, f1);
 xlabel("t, s");
 ylabel("A, v");
 title("Seq1");
-subplot(2, 1, 2);
+subplot(3, 1, 2);
 plot(t, f2);
 xlabel("t, s");
 ylabel("A, v");
 title("Seq2");
+subplot(3, 1, 3);
+plot(t, f3);
+xlabel("t");
+ylabel("A,v");
+title("Seq3")
 
 fprintf("Unnormolized corr: \t %f\n", unnorm_corr(f1, f2));
 fprintf("Normolized corr: \t %f\n", norm_corr(f1, f2));
 
 N = length(f1);
 
-corr_vals = zeros(N, 1);
+f1_corr_vals = zeros(N, 1);
+f2_corr_vals = zeros(N, 1);
+f3_corr_vals = zeros(N, 1);
 
-for k = 1:N
+
+for k = 0:N-1
+    f1_shift = circshift(f1, k);
     f2_shift = circshift(f2, k);
-    corr_vals(k) = norm_corr(f1, f2_shift);
+    f3_shift = circshift(f3, k);
+
+    f1_corr_vals(k+1) = norm_corr(f1, f1_shift);
+    f2_corr_vals(k+1) = norm_corr(f2, f2_shift);
+    f3_corr_vals(k+1) = norm_corr(f3, f3_shift);
 end
- 
+
 figure;
-plot(1:N, corr_vals);
+plot(0:N-1, f1_corr_vals);
 xlabel('Сдвиг');
-ylabel('Корреляция');
-title('Взаимная корреляция a и b при циклическом сдвиге');
+ylabel('Автокорреляция');
+title('Автокорреляция seq1 при циклическом сдвиге');
 grid on;
+hold on;
+plot(0:N-1, f2_corr_vals);
+xlabel('Сдвиг');
+ylabel('Автокорреляция');
+title('Автокорреляция seq2 при циклическом сдвиге');
+grid on;
+plot(0:N-1, f3_corr_vals);
+xlabel('Сдвиг');
+ylabel('Автокорреляция');
+title('Автокорреляция seq3 при циклическом сдвиге');
+grid on;
+hold off;
+
+
+% figure;
+% plot(1:N, corr_vals);
+% xlabel('Сдвиг');
+% ylabel('Корреляция');
+% title('Взаимная корреляция a и b при циклическом сдвиге');
+% grid on;
 
 
 % %define cor function

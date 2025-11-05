@@ -22,6 +22,8 @@ grid on;
 
 %% fft 
 y_fft = fft(y); 
+y_ifft = ifft(y_fft);
+
 y_down_fft = fft(y_down); 
 
 %% build plots
@@ -53,7 +55,7 @@ f_shift = 759;
 y_shifted = real(y .* exp(1i * 2 * pi * f_shift * t));
 
 % check voice
-new_audio = audioplayer(y_shifted, Fs);
+new_audio = audioplayer(y_ifft, Fs);
 play(new_audio);
 
 %% function

@@ -100,26 +100,26 @@ for ADC_capacity = ADC_start:ADC_end
 
 end
 
-%% my_ft vs matlab my_fft
-% t_test = 0 : 0.1 : 1000;
-% test_samples = my_signal(t_test, f);
-% time_sum_my_ft = 0;
-% time_sum_matlab_fft = 0;
-% 
-% for i = 1:5
-%     tic;
-%     my_ft_samples = my_fft(test_samples);
-%     time_sum_my_ft = time_sum_my_ft + toc;
-% end
-% 
-% for i = 1:5
-%     tic;
-%     my_ft_samples = fft(test_samples);
-%     time_sum_matlab_fft = time_sum_matlab_fft + toc;
-% end
-% 
-% fprintf("Matlab avg fft time:%f\n", time_sum_matlab_fft/5);
-% fprintf("My ft avg time:%f\n", time_sum_my_ft/5);
+% my_ft vs matlab my_fft
+t_test = 0 : 1 : 128;
+test_samples = my_signal(t_test, f);
+time_sum_my_ft = 0;
+time_sum_matlab_fft = 0;
+
+for i = 1:5
+    tic;
+    my_ft_samples = my_fft(test_samples);
+    time_sum_my_ft = time_sum_my_ft + toc;
+end
+
+for i = 1:5
+    tic;
+    my_ft_samples = fft(test_samples);
+    time_sum_matlab_fft = time_sum_matlab_fft + toc;
+end
+fprintf("SIZE:%d\n", length(t_test));
+fprintf("Matlab avg fft time:%f\n", time_sum_matlab_fft/5);
+fprintf("My ft avg time:%f\n", time_sum_my_ft/5);
 
 %% The imperial march
 

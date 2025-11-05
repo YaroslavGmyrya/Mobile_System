@@ -92,6 +92,7 @@ end
 
 plot(rx_sensBS, rad);
 xlabel("BS SENS")
+title("YAROSLAV_GMYRYA");
 ylabel("Cell Radius");
 % 
 % %compute UL budget and UL_MAPL
