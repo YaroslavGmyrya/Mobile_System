@@ -4,6 +4,9 @@
 #define NUMBER_IN_JOURNAL 6
 #define NUM_FORMAT 5
 #define MAX_BIT_SIZE pow(2, NUM_FORMAT) - 1
+#define ENDL printf("\n")
+#define TAB printf("\t")
+
 
 template <typename T>
 void print_bin(T number){
@@ -26,25 +29,25 @@ T cycle_shift(T number, int shift) {
 }
 
 template <typename T>
-int m_seq_gen(T x_seq, int xor_bit1, int xor_bit2){
+int m_seq_gen(T x_seq, int* poly, int poly_size){
 
     int result = 0;
 
     //for xor operation
-    int x1, x2 = 0;
+    int x;
 
     for(int i = MAX_BIT_SIZE-1; i >= 0; --i){
+        x = 0;
         //add to result last bit
         result |= (x_seq & 1) << i;
 
-        //get last bit
-        x1 =(x_seq >> 1 * xor_bit1) & 1;
-
-        //get pre-last bit
-        x2 = (x_seq >> 1 * xor_bit2) & 1;
+        //compute feedback value
+        for(int j = 0; j < poly_size; ++j){
+            x ^= (x_seq >>  poly[j]) & 1;
+        }
 
         //shift and add xor operation result in first bit of x_seq
-        x_seq = ((x_seq >> 1) | ((x1 ^ x2) << NUM_FORMAT-1));
+        x_seq = ((x_seq >> 1) | (x << (NUM_FORMAT-1)));
     }
 
     return result;
@@ -77,82 +80,161 @@ void bit_seq_compare(T seq_1, T seq_2, int& coincided, int& non_concided){
     }
 }
 
+void check_balance(int pn_seq, int size){
+    
+    int count1 = 0;
+
+    for(int i = 0; i < size; ++i){
+        if((pn_seq>>i) & 1){
+            ++count1;
+        } 
+    }
+
+    int count0 = size - count1;
+
+    printf("count0 = %d \t count1 = %d", count0, count1);
+}
+
+// void recovery_balance(int& pn_seq, int size, int count0, int count1){
+//     if(count0 > count1){
+//         int i = 0;
+//         while(abs(count0 - count1) != 1){
+//             double r = 1/(rand() % 10);
+//             if(!((pn_seq>>i) & 1) && r > 0.8){
+//                 pn_seq ^= (1 << i);
+//                 --count0;
+//                 ++count1;
+//             }
+
+//             ++i;
+//             if(i == size)
+//                 i = 0;
+
+//         }
+//     } else{
+//         int i = 0;
+//         while(abs(count0 - count1) != 1){
+//             double r = 1/(rand() % 10);
+//             if(((pn_seq>>i) & 1) && r > 0.8){
+//                 pn_seq ^= (1 << i);
+//                 ++count0;
+//                 --count1;
+//             }
+//             ++i;
+//             if(i == size)
+//                 i = 0;
+//         }
+//     }
+// }
+
+// int gcd(int a, int b) {
+//     while (b != 0) {
+//         int temp = b;
+//         b = a % b;
+//         a = temp;
+//     }
+//     return a;
+// }
+
+// int find_decimation_coeff(int m){
+//     int k = 0;
+//     for(k = 1; k < (m-1)/2; ++k){
+//         if(gcd(k, m) == 1){
+//            break;
+//         }
+//     }
+
+//     return static_cast<int>(pow(2,k)+1);
+// }
+
+// int decimation(int m_seq, int seq_size, int d) {
+//     int result = 0;
+
+//     for (int n = 0; n < seq_size; ++n) {
+//         int i = (n * d) % seq_size;
+
+//         int bit_index_in = seq_size - 1 - i;
+
+//         int bit = (m_seq >> bit_index_in) & 1;
+
+//         int bit_index_out = seq_size - 1 - n;
+
+//         if (bit)
+//             result |= (1 << bit_index_out);
+//     }
+
+//     return result;
+// }
+
+
 int main(){
-    int l = 3;
+    srand(time(0));
+
     //define base seq 
-    int8_t x_seq1 = NUMBER_IN_JOURNAL;
-    int8_t y_seq1 = NUMBER_IN_JOURNAL + 7;
+    int n1 = NUMBER_IN_JOURNAL;
+    int n2 = NUMBER_IN_JOURNAL + 7;
 
-    int8_t x_seq2 = NUMBER_IN_JOURNAL + l;
-    int8_t y_seq2 = y_seq1 - 5;
+    int n3 = n1 + 1;
+    int n4 = n2 - 5;
 
-    //output base seq
+    int poly1[] = {0, 2}; 
+    int poly2[] = {0, 2, 3, 4};
 
-    printf("x_seq1: ");
-    print_bin(x_seq1);
+    int m_seq1 = m_seq_gen(n1, poly1, 2);
+    int m_seq2 = m_seq_gen(n2, poly2, 4);
 
-    printf("\n");
+    int m_seq3 = m_seq_gen(n3, poly1, 2);
+    int m_seq4 = m_seq_gen(n4, poly2, 4);
 
-    printf("y_seq1: ");
-    print_bin(y_seq1);
+    printf("m_seq1: \t");
+    print_bin(m_seq1);
+    TAB;
+    check_balance(m_seq1, MAX_BIT_SIZE);
 
-    printf("\n");
+    ENDL;
 
-    printf("x_seq1: ");
-    print_bin(x_seq2);
+    printf("m_seq2: \t");
+    print_bin(m_seq2);
+    TAB;
+    check_balance(m_seq2, MAX_BIT_SIZE);
 
-    printf("\n");
-
-    printf("y_seq2: ");
-    print_bin(y_seq2);
-
-    printf("\n\n");
-
-    //generate m-seq
-    int m_seq_1 = m_seq_gen(x_seq1, 0, 1);
-    int m_seq_2 = m_seq_gen(y_seq1, 0, 3);
-
-    int m_seq_3 = m_seq_gen(x_seq2, 0, 1);
-    int m_seq_4 = m_seq_gen(y_seq2, 0, 3);
-
-    printf("m_seq1: ");
-    print_bin(m_seq_1);
-
-    printf("\n");
-
-    printf("m_seq2: ");
-    print_bin(m_seq_2);
-
-    printf("\n");
-
-    printf("m_seq3: ");
-    print_bin(m_seq_3);
-
-    printf("\n");
-
-    printf("m_seq4: ");
-    print_bin(m_seq_4);
-
-    printf("\n\n");
-
-    //generate golden-seq
-    int golden_seq1 = m_seq_1 ^ m_seq_2;
-    int golden_seq2 = m_seq_3 ^ m_seq_4;
-
-    //output godlen-seq
-    printf("golden-seq1: ");
+    ENDL;
+    
+    int golden_seq1 = m_seq1 ^ cycle_shift(m_seq2,14);
+    printf("golden_seq1: \t");
     print_bin(golden_seq1);
+    TAB;
+    check_balance(golden_seq1, MAX_BIT_SIZE);
 
-    printf("\n");
+    ENDL;
 
-    printf("golden-seq2: ");
+
+    printf("m_seq3: \t");
+    print_bin(m_seq3);
+    TAB;
+    check_balance(m_seq3, MAX_BIT_SIZE);
+
+    ENDL;
+
+    printf("m_seq4: \t");
+    print_bin(m_seq4);
+    TAB;
+    check_balance(m_seq4, MAX_BIT_SIZE);
+
+    ENDL;
+    
+    int golden_seq2 = m_seq3 ^ cycle_shift(m_seq4,14);
+    printf("golden_seq2: \t");
     print_bin(golden_seq2);
-    printf("\n\n\n");
+    TAB;
+    check_balance(golden_seq2, MAX_BIT_SIZE);
+
+    ENDL;
 
     int coincided = 0;
     int non_coincided = 0;
 
-    printf("lag:\t\toriginal golden_seq:\t\t\t\t\t\t\tshift golden_seq:\t\t\t  c:\tnc:\tcorr:\n");
+    printf("\nlag:\t\toriginal golden_seq:\t\t\t\t\t\t\tshift golden_seq:\t\t\t  c:\tnc:\tcorr:\n");
 
     for(int i = 0; i < MAX_BIT_SIZE+1; ++i){
         printf("%d  ", i);
@@ -164,6 +246,30 @@ int main(){
         printf("  ");
 
         print_bin(cycle_shift(golden_seq1, i));
+
+        printf("  ");
+
+        printf("%d\t%d", coincided, non_coincided);
+
+        printf("  ");
+
+        printf("%lf\n", (coincided - non_coincided) / static_cast<double>(MAX_BIT_SIZE));
+    }
+
+    printf("\n\n\n");
+
+        printf("\nlag:\t\toriginal golden_seq:\t\t\t\t\t\t\tshift golden_seq:\t\t\t  c:\tnc:\tcorr:\n");
+
+    for(int i = 0; i < MAX_BIT_SIZE+1; ++i){
+        printf("%d  ", i);
+    
+        bit_seq_compare(golden_seq2, cycle_shift(golden_seq2, i), coincided, non_coincided);
+
+        print_bin(golden_seq2);
+
+        printf("  ");
+
+        print_bin(cycle_shift(golden_seq2, i));
 
         printf("  ");
 
