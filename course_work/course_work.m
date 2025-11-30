@@ -36,8 +36,11 @@ data = [bit_seq',crc'];
 seq1 = dec2bin(NUM_IN_JOURNAL, BIT_FORMAT) - '0';
 seq2 = dec2bin(NUM_IN_JOURNAL + 7, BIT_FORMAT) - '0';
 
-m_seq1 = m_seq_gen(seq1, 0, 1);
-m_seq2 = m_seq_gen(seq2, 0, 3);
+poly1 = [5 3];     
+poly2 = [5 3 2 1];
+
+m_seq1 = m_seq_gen(seq1, poly1);
+m_seq2 = m_seq_gen(seq2, poly2);
 
 golden_seq = xor(m_seq1, m_seq2);
 
@@ -190,23 +193,31 @@ end
 
 
 % function for generate m-seq
-function m_seq = m_seq_gen(seq, xor_el1, xor_el2)
+function m_seq = m_seq_gen(seq, poly)
     
     m_seq_len = 2^length(seq) - 1;
     m_seq = zeros(m_seq_len, 1);
-
+  
     for i=1:m_seq_len
+        x = 0;
+
         %get bits for feedback
-        xor_bit1 = seq(end-xor_el1);
-        xor_bit2 = seq(end-xor_el2);
+        for k=1:length(poly)
+            x = xor(x, seq(poly(k)));
+        end
+
         %write last bit default seq to result seq
         m_seq(i) = seq(end);
+
         %shift seq
         seq = circshift(seq, 1);
+
         %write in head bit from feedback
-        seq(1) = xor(xor_bit1, xor_bit2);
+        seq(1) = x;
     end
+
 end
+
 
 % upsampling
 function samples = upsampling(bits, N)
