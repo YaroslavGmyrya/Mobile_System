@@ -4,6 +4,7 @@
 #define NUMBER_IN_JOURNAL 6
 #define NUM_FORMAT 5
 #define MAX_BIT_SIZE pow(2, NUM_FORMAT) - 1
+
 #define ENDL printf("\n")
 #define TAB printf("\t")
 
@@ -95,6 +96,83 @@ void check_balance(int pn_seq, int size){
     printf("count0 = %d \t count1 = %d", count0, count1);
 }
 
+void check_autocorr(int pn_seq){
+
+    int coincided, non_coincided;
+    double c1 = -1.0/static_cast<double>(MAX_BIT_SIZE);
+    double c2 = (pow(2, (NUM_FORMAT+1)/2) - 1)/static_cast<double>(MAX_BIT_SIZE);
+    double c3 = (-pow(2, (NUM_FORMAT+1)/2) - 1)/static_cast<double>(MAX_BIT_SIZE);
+
+    double normal_value[3] = {c1, c2, c3};
+    double autocorr = 0;
+
+    int k;
+
+    for(int i = 1; i < MAX_BIT_SIZE; ++i){
+        k = 0;
+
+        bit_seq_compare(pn_seq, cycle_shift(pn_seq, i), coincided, non_coincided);
+
+        autocorr = (coincided - non_coincided) / static_cast<double>(MAX_BIT_SIZE);
+
+        for(int j = 0; j < 3; ++j){
+            if(autocorr == normal_value[j]){
+                ++k;
+            }
+        }
+
+        if(k!=1){
+            printf("\nInvalid autocorr value\n");
+            return;
+        }
+    }
+
+    printf("Autocorr: OK");
+}
+
+
+void check_cycle(int pn_seq){
+    int cycles_count[10] = {0};
+    int prev_bit = (pn_seq  >> 0) & 1;
+    int tmp = 1;
+
+    for(int i = 1; i < MAX_BIT_SIZE; ++i){
+        int cur_bit = (pn_seq  >> i) & 1;
+
+        if(cur_bit == prev_bit){
+            ++tmp;
+        } else{
+            ++cycles_count[tmp];
+            tmp = 1;
+        }
+
+        prev_bit = cur_bit;
+    }
+
+    for(int i = 0; i < 10; ++i){
+        printf("%d ", cycles_count[i]);
+    }
+
+    double sum = 0;
+
+    TAB;
+
+    for(int i = 0; i < 10; ++i){
+        sum += cycles_count[i];
+    }
+
+    for(int i = 1; i < 10; ++i){
+        if(!(cycles_count[i] == static_cast<int>(sum / (pow(2, i))) + 1 || 
+            cycles_count[i] == static_cast<int>(sum / (pow(2, i))) - 1 || 
+            cycles_count[i] == static_cast<int>(sum / (pow(2, i))))){
+                printf("Not OK");
+                return;
+            }
+    }
+
+    printf("OK");
+}
+
 // void recovery_balance(int& pn_seq, int size, int count0, int count1){
 //     if(count0 > count1){
 //         int i = 0;
@@ -167,15 +245,31 @@ void check_balance(int pn_seq, int size){
 // }
 
 
+int find_shift(int m_seq1, int m_seq2){
+    int shift = -1;
+    int coincided, non_coincided;
+
+    for(int i = 0; i < MAX_BIT_SIZE; ++i){
+        bit_seq_compare(m_seq1, cycle_shift(m_seq2, i), coincided, non_coincided);
+
+        if(abs(coincided - non_coincided) == 1 || abs(coincided - non_coincided) == 0){
+            shift = i;
+            break;
+        }
+    }
+
+    return shift;
+}
+
 int main(){
     srand(time(0));
 
     //define base seq 
-    int n1 = NUMBER_IN_JOURNAL;
-    int n2 = NUMBER_IN_JOURNAL + 7;
+    int n1 = 4;
+    int n2 = 6 + 3;
 
-    int n3 = n1 + 1;
-    int n4 = n2 - 5;
+    int n3 = 6;
+    int n4 = 7;
 
     int poly1[] = {0, 2}; 
     int poly2[] = {0, 2, 3, 4};
@@ -199,12 +293,18 @@ int main(){
     check_balance(m_seq2, MAX_BIT_SIZE);
 
     ENDL;
-    
-    int golden_seq1 = m_seq1 ^ cycle_shift(m_seq2,14);
+    int shift = find_shift(m_seq1, m_seq2);
+    // printf("shift: %d", shift);
+    int golden_seq1 = m_seq1 ^ cycle_shift(m_seq2, shift);
     printf("golden_seq1: \t");
     print_bin(golden_seq1);
     TAB;
     check_balance(golden_seq1, MAX_BIT_SIZE);
+    TAB;
+    check_autocorr(golden_seq1);
+    TAB;
+    check_cycle(golden_seq1);
+
 
     ENDL;
 
@@ -222,12 +322,20 @@ int main(){
     check_balance(m_seq4, MAX_BIT_SIZE);
 
     ENDL;
-    
-    int golden_seq2 = m_seq3 ^ cycle_shift(m_seq4,14);
+
+    shift = find_shift(m_seq3, m_seq4);
+
+    // printf("shift: %d", shift);
+    int golden_seq2 = m_seq3 ^ cycle_shift(m_seq4,shift);
     printf("golden_seq2: \t");
     print_bin(golden_seq2);
     TAB;
     check_balance(golden_seq2, MAX_BIT_SIZE);
+    TAB;
+    check_autocorr(golden_seq2);
+    TAB;
+    check_cycle(golden_seq2);
+
 
     ENDL;
 
@@ -285,7 +393,6 @@ int main(){
     bit_seq_compare(golden_seq1, golden_seq2, coincided, non_coincided);
 
     printf("Cross-corr b/w golden_seq1 & golden_seq2: %f\n\n", (coincided - non_coincided) / static_cast<double>(MAX_BIT_SIZE));
-
 
     return 0;
 }
