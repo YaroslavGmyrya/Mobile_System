@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <numeric>
+#include <cmath>
 
 template <typename T>
 std::vector<T> rm_front(const std::vector<T>& vec){
@@ -112,54 +113,60 @@ void crc_test(const std::vector<T>& data, const std::vector<T>& polynome){
 int main(){
     int N = 20;
     int num_in_journal = 6;
-
+    int dec_data = 44461;
+    int dec_crc = 253;
     printf("\n\n########################### TEST 1 #######################################\n\n");
 
-    std::vector<int8_t> data = generate_data(N + num_in_journal);
+    std::vector<int8_t> data = {0,1,0,1,0,1,1,0,1,1,0,1,0,1,1,0,1};
 
-    std::vector<int8_t> polynome = {1,1,1,1,1,1,0,1};
+    std::vector<int8_t> polynome = {1,1,1,1,1,1,0,1,1};
 
-    crc_test(data, polynome);
+    printf("CRC FUNCTION:\n");
+    print_vec(crc(data, polynome));
 
-    printf("\n\n########################## TEST 2 #######################################\n\n");
+    printf("LAZY CRC: %d\n", (static_cast<int>(dec_data * pow(2,7))) % dec_crc);
+    
+    // crc_test(data, polynome);
 
-    data = generate_data(250);
-    polynome = {1,1,1,1,1,1,0,1};
+    // printf("\n\n########################## TEST 2 #######################################\n\n");
 
-    crc_test(data, polynome);
+    // data = generate_data(250);
+    // polynome = {1,1,1,1,1,1,0,1};
 
-    printf("\n\n########################## TEST 3 #######################################\n\n");
+    // crc_test(data, polynome);
 
-    int errors_count = 0;
+    // printf("\n\n########################## TEST 3 #######################################\n\n");
 
-    //compute and print crc on TX
-    std::vector<int8_t> tx_crc = crc(data, polynome);
+    // int errors_count = 0;
 
-    //add crc to data
-    std::vector<int8_t> data_with_crc = data;
+    // //compute and print crc on TX
+    // std::vector<int8_t> tx_crc = crc(data, polynome);
 
-    for(int i = 0; i < tx_crc.size(); ++i){
-        data_with_crc.push_back(tx_crc[i]);
-    }
+    // //add crc to data
+    // std::vector<int8_t> data_with_crc = data;
+
+    // for(int i = 0; i < tx_crc.size(); ++i){
+    //     data_with_crc.push_back(tx_crc[i]);
+    // }
   
-    for(int i = 0; i < data_with_crc.size(); ++i){
+    // for(int i = 0; i < data_with_crc.size(); ++i){
 
-        //distort packet
-        data_with_crc[i] ^= 1;
+    //     //distort packet
+    //     data_with_crc[i] ^= 1;
 
-        //compute crc on RX
-        std::vector<int8_t> rx_crc = crc(data_with_crc, polynome);
+    //     //compute crc on RX
+    //     std::vector<int8_t> rx_crc = crc(data_with_crc, polynome);
 
-        if(std::accumulate(data_with_crc.begin(), data_with_crc.end(), 0)){
-            ++errors_count;
-        }
+    //     if(std::accumulate(data_with_crc.begin(), data_with_crc.end(), 0)){
+    //         ++errors_count;
+    //     }
 
-        //recovery packet
-        data_with_crc[i] ^= 1;
+    //     //recovery packet
+    //     data_with_crc[i] ^= 1;
 
-    }
+    // }
 
-    printf("Errors_count: %d\n", errors_count);
+    // printf("Errors_count: %d\n", errors_count);
 
 
     return 0;

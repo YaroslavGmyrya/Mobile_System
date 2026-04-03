@@ -122,7 +122,7 @@ void check_autocorr(int pn_seq){
         }
 
         if(k!=1){
-            printf("\nInvalid autocorr value\n");
+            printf("Invalid autocorr value");
             return;
         }
     }
@@ -149,6 +149,7 @@ void check_cycle(int pn_seq){
         prev_bit = cur_bit;
     }
 
+    printf("Cycles: ");
     for(int i = 0; i < 10; ++i){
         printf("%d ", cycles_count[i]);
     }
